@@ -80,8 +80,8 @@ const createOrder = async (req, res) => {
       application_context: {
         brand_name: "Gamezone",
         landing_page: "NO_PREFERENCE",
-        user_action: "PAY_NOW"back,
-        return_url: "https://-gamezone-production.up.railway.app/captureOrder",
+        user_action: "PAY_NOW",
+        return_url: "https://back-gamezone-production.up.railway.app/captureOrder",
         cancel_url: "https://back-gamezone-production.up.railway.app/cancelOrder",
         // return_url: "https://back-gamezone-y96h.onrender.com/captureOrder",
         // cancel_url: "https://back-gamezone-y96h.onrender.com/cancelOrder",
