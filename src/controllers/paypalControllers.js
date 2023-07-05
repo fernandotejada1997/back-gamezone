@@ -178,14 +178,14 @@ const captureOrder = async (req, res) => {
                       <p>The Gamezone Team</p>`,
       });
     }
-    res.redirect("https://back-gamezone-production.up.railway.app/user");
+    res.redirect("https://front-gamezone-production.up.railway.app/user");
   } catch (error) {
     res.status(400).send("Error");
   }
 };
 
 const cancelOrder = (req, res) => {
-  return res.redirect("https://back-gamezone-production.up.railway.app/cart");
+  return res.redirect("https://front-gamezone-production.up.railway.app/cart");
 };
 
 module.exports = {
