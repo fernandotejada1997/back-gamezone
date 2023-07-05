@@ -485,7 +485,7 @@ const gameUrl = 'https://store.steampowered.com/api/appdetails?appids=';
 const saveGames = async (req, res) => {
   try {
     //[105450, 1017900, 813780, 209000, 208650, 200260, 35140, 1817070, 1817190]
-    const gameIds = [2231770];
+    const gameIds = [2258090];
     const gamesData = [];
 
     for (const gameId of gameIds) {

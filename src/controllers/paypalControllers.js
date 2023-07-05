@@ -81,8 +81,8 @@ const createOrder = async (req, res) => {
         brand_name: "Gamezone",
         landing_page: "NO_PREFERENCE",
         user_action: "PAY_NOW",
-        return_url: "https://back-gamezone-y96h.onrender.com/captureOrder",
-        cancel_url: "https://back-gamezone-y96h.onrender.com/cancelOrder",
+        return_url: "https://back-gamezone-production.up.railway.app/captureOrder",
+        cancel_url: "https://back-gamezone-production.up.railway.app/cancelOrder",
         // return_url: "https://back-gamezone-y96h.onrender.com/captureOrder",
         // cancel_url: "https://back-gamezone-y96h.onrender.com/cancelOrder",
       },
@@ -178,14 +178,14 @@ const captureOrder = async (req, res) => {
                       <p>The Gamezone Team</p>`,
       });
     }
-    res.redirect("https://back-gamezone-y96h.onrender.com/user");
+    res.redirect("https://back-gamezone-production.up.railway.app/user");
   } catch (error) {
     res.status(400).send("Error");
   }
 };
 
 const cancelOrder = (req, res) => {
-  return res.redirect("https://back-gamezone-y96h.onrender.com/cart");
+  return res.redirect("https://back-gamezone-production.up.railway.app/cart");
 };
 
 module.exports = {
