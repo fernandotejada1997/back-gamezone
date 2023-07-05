@@ -20,7 +20,9 @@ const profileUser = async (req, res) => {
                     name : dataProfile.name,
                     email : dataProfile.email,
                     user_name : dataProfile.user_name,
-                    country : dataProfile.country
+                    country : dataProfile.country,
+                    id: dataProfile.id,
+                    profileImage: dataProfile.profileImage 
                 }
             )
             
