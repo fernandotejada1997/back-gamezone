@@ -27,8 +27,8 @@ const allGames = async (req, res) => {
       const gamePrice = game.price_overview.slice(5).replace('.', '').replace(',', '.');
       const gameprice2 = game.price_overview.slice(5).replace(",")
       const gamename = game.name
-      console.log(gamename)
-
+      console.log(game.price_overview)
+      
       if (game.price_overview === "Free") {
         game.price_overview = 0;
       } else if (gameCurrency === "COL") {
