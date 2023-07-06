@@ -148,7 +148,7 @@
 //   }
 // };
 
-// module.exports = saveGames;
+// module.exports = saveGames
 
 const axios = require('axios');
 const { Games, Platforms, Genres, Publishers, Developers, Languages, Categories, Images, Videos } = require('../db.js');
