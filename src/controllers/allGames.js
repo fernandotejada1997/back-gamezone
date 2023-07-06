@@ -53,7 +53,10 @@ const allGames = async (req, res) => {
       } else if (gameCurrency === "Mex") {
         const number = NP.times(gamePrice / 17.12).toFixed(2);
         game.price_overview = Number(number);
-      }
+      } else if (gameCurrency === "R$") {
+      const number = NP.times(gamePrice, 0.19).toFixed(2); 
+      game.price_overview = Number(number);
+    }
       return game;
     });
 
