@@ -105,8 +105,6 @@ const allGamesAdmin = async (req, res) => {
         const gameCurrency = game.price_overview.slice(0, 3);
         const gamePrice = game.price_overview.slice(5).replace('.', '').replace(',', '.');
         const gamePrice01 = game.price_overview.replace(/00$/, '');
-        console.log(gamePrice01)
-        console.log(game.price_overview)
         if (game.price_overview === "Free") {
           game.price_overview = 0;
         } else if (gameCurrency === "COL") {
