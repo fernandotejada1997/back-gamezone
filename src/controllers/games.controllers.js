@@ -1,4 +1,6 @@
 // const { Games, Categories, Developers, Genres, Languages, Platforms, Publishers, Reviews } = require('../db');
+// const transporter = require('../middlewares/nodemailer')
+
 // // Ruta para traer todos los Games creados (borrado lógico)
 // const getAllGames = async (req, res) => {
 //   try {
@@ -281,6 +283,22 @@
 //     bannedGame.bannedAt = new Date();
 //     await bannedGame.save();
 
+//     await transporter.sendMail({
+//       from: '"Game Accessibility Notification" <carrizosamayito@gmail.com>', // sender address
+//       to: `carrizosamayito@gmail.com`, // list of receivers
+//       subject: "Game Accessibility Notification", // Subject line
+//       html:  `<h1>Game Accessibility Notification</h1>
+//               <p>Dear Admin,</p>
+//               <p>We would like to inform you that a game in our platform has been banned and is no longer accessible. Below are the details:</p>
+//               <p><strong>Game:</strong> ${bannedGame.name}</p>
+//               <p>Please take the necessary steps to ensure that the game is removed from the platform and is no longer available for users.</p>
+//               <p>If you require any additional information or have any questions regarding this ban, please don't hesitate to contact us.</p>
+//               <p>Thank you for your prompt attention to this matter.</p>
+//               <p>Best regards,</p>
+//               <p>The Gamezone Team</p>`
+//       }
+//   )
+
 //     res.json({ message: 'Juego baneado exitosamente' });
 //   } catch (error) {
 //     res.status(500).json({ error: error.message });
@@ -313,9 +331,8 @@
 //   banGame,
 //   reviewGames
 // };
-const { Games, Categories, Developers, Genres, Languages, Platforms, Publishers, Reviews } = require('../db');
-const transporter = require('../middlewares/nodemailer')
 
+const { Games, Categories, Developers, Genres, Languages, Platforms, Publishers, Reviews, Images, Videos } = require('../db');
 // Ruta para traer todos los Games creados (borrado lógico)
 const getAllGames = async (req, res) => {
   try {
@@ -334,10 +351,34 @@ const getGame = async (req, res) => {
     let game;
     if (name) {
       // Si se proporciona el parámetro de nombre, buscar por nombre
-      game = await Games.findOne({ where: { name } });
+      game = await Games.findOne({ 
+        where: { name },
+        include: [
+          { model: Developers, attributes: ['developer'], through: { attributes: [] } },
+          { model: Languages, attributes: ['language'], through: { attributes: [] } },
+          { model: Platforms, attributes: ['platform'], through: { attributes: [] } },
+          { model: Genres, attributes: ['genre'], through: { attributes: [] } },
+          { model: Categories, attributes: ['category'], through: { attributes: [] } },
+          { model: Images, attributes: ['image'], through: { attributes: [] } },
+          { model: Videos, attributes: ['video'], through: { attributes: [] } },
+          { model: Reviews, attributes: ['reviews', 'rating', 'date'], through: { attributes: [] } },
+        ] 
+      });
     } else if (id) {
       // Si se proporciona el parámetro de ID, buscar por ID
-      game = await Games.findByPk(id);
+      game = await Games.findByPk(id, {
+        where: { name },
+        include: [
+          { model: Developers, attributes: ['developer'], through: { attributes: [] } },
+          { model: Languages, attributes: ['language'], through: { attributes: [] } },
+          { model: Platforms, attributes: ['platform'], through: { attributes: [] } },
+          { model: Genres, attributes: ['genre'], through: { attributes: [] } },
+          { model: Categories, attributes: ['category'], through: { attributes: [] } },
+          { model: Images, attributes: ['image'], through: { attributes: [] } },
+          { model: Videos, attributes: ['video'], through: { attributes: [] } },
+          { model: Reviews, attributes: ['reviews', 'rating', 'date'], through: { attributes: [] } },
+        ]
+      });
     }
 
     if (game) {
@@ -473,17 +514,16 @@ const deleteGame = async (req, res) => {
 const updateGame = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, type, required_age, is_free, detailed_description, abouth_the_game, short_description, release_date, coming_soon, support_info, metacritic,
-      price_overview, header_image, capsule_image, developers, genres, publishers, platform, languages, categories } = req.body;
+    const { name, type, required_age, is_free, detailed_description, release_date, coming_soon, controller_support, discounted, discount_percent,
+      price_overview, header_image, capsule_image, developers, genres, platform, languages, categories, pc_requirements } = req.body;
 
     let game = await Games.findByPk(id); // Obtener la instancia del juego por su id
-
+      console.log(req.body)
     if (!game) {
       return res.status(404).json({ error: 'Juego no encontrado' });
     }
     Categories, Developers, Genres, Languages, Platforms, Publishers
     await game.setDevelopers([]); // Eliminar la relación anterior
-    await game.setPublishers([]);
     await game.setPlatforms([]);
     await game.setLanguages([]);
     await game.setGenres([]);
@@ -494,15 +534,15 @@ const updateGame = async (req, res) => {
     game.required_age = required_age;
     game.is_free = is_free;
     game.detailed_description = detailed_description;
-    game.abouth_the_game = abouth_the_game;
-    game.short_description = short_description;
+    game.controller_support = controller_support;
     game.release_date = release_date;
     game.coming_soon = coming_soon;
-    game.support_info = support_info;
-    game.metacritic = metacritic;
     game.price_overview = price_overview;
+    game.discounted = discounted;
+    game.discount_percent = discount_percent;
     game.header_image = header_image;
     game.capsule_image = capsule_image;
+    game.pc_requirements = pc_requirements
 
     await game.save(); // Guardar los cambios en la base de datos
 
@@ -525,17 +565,6 @@ const updateGame = async (req, res) => {
     for (const genre of genresSet) {
       const relationGenres = await Genres.findOrCreate({ where: { genre: genre } });
       await game.addGenres(relationGenres[0]);
-    }
-
-    const publishersSet = new Set();
-
-    if (publishers.length > 0) {
-      publishers.map(publisher => publishersSet.add(publisher));
-    }
-
-    for (const publisher of publishersSet) {
-      const relationPublisher = await Publishers.findOrCreate({ where: { publisher: publisher } });
-      await game.addPublishers(relationPublisher[0]);
     }
 
     const platformsSet = new Set();
@@ -580,41 +609,25 @@ const updateGame = async (req, res) => {
 // Ruta para banear un Game (borrado lógico)
 const banGame = async (req, res) => {
   try {
-    let bannedGame;
+    const gameId = req.params.gamesId;
 
-    if (req.query.name) {
-      // Bannear juego por nombre
-      bannedGame = await Games.findOne({ where: { name: req.query.name } });
-    } else if (req.params.gamesId) {
-      // Bannear juego por ID
-      bannedGame = await Games.findByPk(req.params.gamesId);
-    }
+    const bannedGame = await Games.findByPk(gameId);
 
     if (!bannedGame) {
       return res.status(404).json({ error: 'Juego no encontrado' });
     }
 
-    bannedGame.status = 'baneado';
-    bannedGame.bannedAt = new Date();
+    const currentBanStatus = bannedGame.ban || false;
+
+    // Actualizar el estado de baneo según el valor actual
+    const newBanStatus = !currentBanStatus;
+    bannedGame.ban = newBanStatus;
+    bannedGame.status = newBanStatus ? 'baneado' : 'activo';
+    bannedGame.bannedAt = newBanStatus ? new Date() : null;
+
     await bannedGame.save();
 
-    await transporter.sendMail({
-      from: '"Game Accessibility Notification" <carrizosamayito@gmail.com>', // sender address
-      to: `carrizosamayito@gmail.com`, // list of receivers
-      subject: "Game Accessibility Notification", // Subject line
-      html:  `<h1>Game Accessibility Notification</h1>
-              <p>Dear Admin,</p>
-              <p>We would like to inform you that a game in our platform has been banned and is no longer accessible. Below are the details:</p>
-              <p><strong>Game:</strong> ${bannedGame.name}</p>
-              <p>Please take the necessary steps to ensure that the game is removed from the platform and is no longer available for users.</p>
-              <p>If you require any additional information or have any questions regarding this ban, please don't hesitate to contact us.</p>
-              <p>Thank you for your prompt attention to this matter.</p>
-              <p>Best regards,</p>
-              <p>The Gamezone Team</p>`
-      }
-  )
-
-    res.json({ message: 'Juego baneado exitosamente' });
+    res.json({ message: 'Estado de baneo del juego actualizado exitosamente', ban: newBanStatus });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
