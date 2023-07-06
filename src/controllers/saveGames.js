@@ -480,7 +480,7 @@
 const axios = require('axios');
 const { Games, Platforms, Genres, Publishers, Developers, Languages, Categories, Images, Videos } = require('../db.js');
 require('dotenv').config();
-const gameUrl = 'https://store.steampowered.com/api/appdetails?appids=';
+const gameUrl = 'https://store.steampowered.com/api/appdetails?appids=2231770';
 
 const saveGames = async (req, res) => {
   try {
