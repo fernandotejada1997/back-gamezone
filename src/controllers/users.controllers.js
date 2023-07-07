@@ -166,20 +166,18 @@ const banUser = async (req, res) => {
       // Bannear usuario por ID
       bannedUser = await Users.findByPk(req.params.userId);
     }
-
     if (!bannedUser) {
-      return res.status(404).json({ error: "Usuario no encontrado" });
+      return res.status(404).json({ error: 'Usuario no encontrado' });
     }
-
-    bannedUser.status = "baneado";
+    bannedUser.ban === false ? bannedUser.ban = true : bannedUser.ban = false
     bannedUser.bannedAt = new Date();
     await bannedUser.save();
-
-    await transporter.sendMail({
-      from: '"Account Suspension Notification" <carrizosamayito@gmail.com>', // sender address
-      to: `carrizosamayito@gmail.com`, // list of receivers
-      subject: "Account Suspension Notification", // Subject line
-      html: `<h1>Account Suspension Notification</h1>
+    if (bannedUser.ban === true) {
+      await transporter.sendMail({
+        from: '"Account Suspension Notification" <carrizosamayito@gmail.com>', // sender address
+        to: `${bannedUser.email}`, // list of receivers
+        subject: "Account Suspension Notification", // Subject line
+        html: `<h1>Account Suspension Notification</h1>
               <p>Dear ${bannedUser.name},</p>
               <p>We regret to inform you that your account has been suspended due to a violation of our terms of service.</p>
               <p>After careful review of your account activity, we have found that you have engaged in behavior that is in direct violation of our community guidelines. As a result, your account has been banned indefinitely.</p>
@@ -187,12 +185,28 @@ const banUser = async (req, res) => {
               <p>If you believe this suspension has been made in error or would like to appeal the decision, please contact our support team by replying to this email. We will investigate your case further and provide additional information.</p>
               <p>We appreciate your understanding and cooperation in this matter.</p>
               <p>Best regards,</p>
-              <p>The Gamezone Team</p>`,
-    });
-
-    res.json({ message: "Usuario baneado exitosamente" });
+              <p>The Gamezone Team</p>`
+      }
+      )
+    }else{
+      await transporter.sendMail({
+        from: '"Account Unban Notification" <carrizosamayito@gmail.com>', // sender address
+        to: `${bannedUser.email}`, // list of receivers
+        subject: "Account Unban Notification", // Subject line
+        html:  `<h1>Account Unban Notification</h1>
+                <p>Dear ${bannedUser.name},</p>
+                <p>We are pleased to inform you that your account has been successfully unbanned. You can now access all the features and services without any restrictions.</p>
+                <p>We apologize for any inconvenience caused during the ban period and thank you for your understanding and patience. Our team has reviewed the situation and determined that the ban can be lifted based on the provided information.</p>
+                <p>Please ensure that you adhere to our community guidelines and terms of service to maintain a positive and respectful environment for all users. Should you have any questions or concerns, feel free to reach out to our support team.</p>
+                <p>Thank you for being a valued member of our community.</p>
+                <p>Best regards,</p>
+                <p>The Gamezone Team</p>`
+        }
+    )
+    }
+    res.json({ message: 'Usuario baneado exitosamente' });
   } catch (error) {
-    res.status(500).json({ error: "Error al banear el usuario" });
+    res.status(500).json({ error: 'Error al banear el usuario' });
   }
 };
 

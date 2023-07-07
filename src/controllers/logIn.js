@@ -44,6 +44,7 @@ const logIn = async (req, res) => {
             country: existingUser.country,
             profileImage: existingUser.profileImage,
             password: existingUser.password,
+            role:existingUser.role
           });
         }
       }
